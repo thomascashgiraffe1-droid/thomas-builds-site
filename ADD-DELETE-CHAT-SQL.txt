@@ -1,0 +1,38 @@
+ADD DELETE FOR CHATS — run once in Supabase SQL Editor (new tab)
+
+Lets visitors delete their own thread and owners delete any thread.
+
+NOTE: If you use the newer “request to close” flow instead, run ADD-CLOSURE-REQUESTS-SQL.txt
+after this file; its Part 1 drops the visitor self-delete policies so only you can remove threads.
+Also lets owners remove any file in the chat-media bucket (for visitor uploads).
+
+-----BEGIN SQL-----
+drop policy if exists "threads visitor delete own" on public.threads;
+create policy "threads visitor delete own" on public.threads for delete
+using (visitor_id = auth.uid());
+
+drop policy if exists "threads owner delete all" on public.threads;
+create policy "threads owner delete all" on public.threads for delete
+using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_owner = true));
+
+drop policy if exists "messages visitor delete own thread" on public.messages;
+create policy "messages visitor delete own thread" on public.messages for delete
+using (
+  exists (select 1 from public.threads t where t.id = messages.thread_id and t.visitor_id = auth.uid())
+);
+
+drop policy if exists "messages owner delete" on public.messages;
+create policy "messages owner delete" on public.messages for delete
+using (
+  exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_owner = true)
+);
+
+drop policy if exists "chat delete owner any" on storage.objects;
+create policy "chat delete owner any" on storage.objects for delete
+using (
+  bucket_id = 'chat-media'
+  and exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_owner = true)
+);
+-----END SQL-----
+
+After success: refresh owner.html and the public site; use the new Delete buttons.

@@ -4,6 +4,7 @@
   var activeThread = null;
   var globalChan = null;
   var ownerUserId = null;
+  var pendingClosureRequestId = null;
 
   function $(id) {
     return document.getElementById(id);
@@ -109,6 +110,7 @@
       .order("created_at", { ascending: true });
     if (res.error) {
       stream.textContent = res.error.message;
+      await refreshClosureBar(tid);
       return;
     }
     stream.innerHTML = "";
@@ -116,6 +118,83 @@
       stream.appendChild(await lineBubble(res.data[i], me));
     }
     stream.scrollTop = stream.scrollHeight;
+    await refreshClosureBar(tid);
+  }
+
+  async function refreshClosureBar(tid) {
+    var bar = $("own-closure-bar");
+    pendingClosureRequestId = null;
+    if (!bar || !client || !tid) {
+      if (bar) bar.hidden = true;
+      return;
+    }
+    var r = await client
+      .from("thread_closure_requests")
+      .select("id")
+      .eq("thread_id", tid)
+      .eq("status", "pending")
+      .maybeSingle();
+    if (r.error || !r.data || !r.data.id) {
+      bar.hidden = true;
+      return;
+    }
+    pendingClosureRequestId = r.data.id;
+    bar.hidden = false;
+  }
+
+  async function purgeThreadStorage(tid) {
+    var res = await client.from("messages").select("attachments").eq("thread_id", tid);
+    if (res.error) return;
+    var paths = [];
+    (res.data || []).forEach(function (row) {
+      var att = row.attachments;
+      if (typeof att === "string") {
+        try {
+          att = JSON.parse(att);
+        } catch (e) {
+          att = [];
+        }
+      }
+      if (!att || !att.length) return;
+      for (var i = 0; i < att.length; i++) {
+        if (att[i] && att[i].path) paths.push(att[i].path);
+      }
+    });
+    if (paths.length) {
+      await client.storage.from("chat-media").remove(paths);
+    }
+  }
+
+  async function performDeleteThread(tid) {
+    if (!tid || !client) return false;
+    log("Deleting…");
+    await purgeThreadStorage(tid);
+    var del = await client.from("threads").delete().eq("id", tid);
+    if (del.error) {
+      log(del.error.message + " — Run ADD-DELETE-CHAT-SQL.txt in Supabase if you have not yet.");
+      return false;
+    }
+    activeThread = null;
+    pendingClosureRequestId = null;
+    var bar = $("own-closure-bar");
+    if (bar) bar.hidden = true;
+    var stream = $("own-stream");
+    if (stream) {
+      stream.innerHTML = "";
+      var p = document.createElement("p");
+      p.className = "chat-empty-hint";
+      p.textContent = "Thread deleted. Pick another thread or refresh.";
+      stream.appendChild(p);
+    }
+    log("Thread deleted.");
+    await loadThreads();
+    return true;
+  }
+
+  async function deleteActiveThread() {
+    if (!activeThread || !client) return;
+    if (!confirm("Delete this whole conversation for you and the visitor? This cannot be undone.")) return;
+    await performDeleteThread(activeThread);
   }
 
   async function loadThreads() {
@@ -127,12 +206,21 @@
       host.textContent = res.error.message;
       return;
     }
+    var pendRes = await client.from("thread_closure_requests").select("thread_id").eq("status", "pending");
+    var pendSet = {};
+    if (!pendRes.error && pendRes.data) {
+      pendRes.data.forEach(function (row) {
+        if (row.thread_id) pendSet[row.thread_id] = true;
+      });
+    }
     host.innerHTML = "";
     (res.data || []).forEach(function (t) {
       var b = document.createElement("button");
       b.type = "button";
       b.className = "thread-row" + (activeThread === t.id ? " is-active" : "");
-      b.textContent = "Thread " + String(t.id).slice(0, 8) + "… · " + new Date(t.created_at).toLocaleString();
+      var label = "Thread " + String(t.id).slice(0, 8) + "… · " + new Date(t.created_at).toLocaleString();
+      if (pendSet[t.id]) label += " · close requested";
+      b.textContent = label;
       b.addEventListener("click", async function () {
         activeThread = t.id;
         Array.prototype.forEach.call(host.querySelectorAll(".thread-row"), function (x) {
@@ -144,6 +232,18 @@
       host.appendChild(b);
     });
     if (!(res.data || []).length) host.textContent = "No threads yet.";
+  }
+
+  function maybeNotifyClosure(row) {
+    if (!row || row.status !== "pending") return;
+    if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
+    if (document.visibilityState === "visible") return;
+    try {
+      new Notification("Close chat requested", {
+        body: "A visitor asked to close a thread.",
+        tag: "closure-" + String(row.thread_id || row.id)
+      });
+    } catch (e) {}
   }
 
   function maybeNotify(row) {
@@ -163,7 +263,7 @@
       globalChan = null;
     }
     globalChan = client
-      .channel("owner-global-msgs")
+      .channel("owner-global-msgs-v2")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages" },
@@ -171,6 +271,31 @@
           var row = payload.new;
           if (!row) return;
           maybeNotify(row);
+          await loadThreads();
+          if (activeThread && row.thread_id === activeThread) {
+            await loadThreadMessages(activeThread);
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "thread_closure_requests" },
+        async function (payload) {
+          var row = payload.new;
+          if (!row) return;
+          maybeNotifyClosure(row);
+          await loadThreads();
+          if (activeThread && row.thread_id === activeThread) {
+            await loadThreadMessages(activeThread);
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "thread_closure_requests" },
+        async function (payload) {
+          var row = payload.new;
+          if (!row) return;
           await loadThreads();
           if (activeThread && row.thread_id === activeThread) {
             await loadThreadMessages(activeThread);
@@ -290,6 +415,43 @@
         }
         $("own-body").value = "";
         await loadThreadMessages(activeThread);
+      });
+    }
+
+    var delBtn = $("own-delete-thread");
+    if (delBtn) {
+      delBtn.addEventListener("click", function () {
+        deleteActiveThread();
+      });
+    }
+
+    var appr = $("own-approve-close");
+    if (appr) {
+      appr.addEventListener("click", async function () {
+        if (!activeThread || !pendingClosureRequestId) return;
+        if (!confirm("Approve the visitor's request and delete this chat permanently?")) return;
+        await performDeleteThread(activeThread);
+      });
+    }
+
+    var dec = $("own-decline-close");
+    if (dec) {
+      dec.addEventListener("click", async function () {
+        if (!pendingClosureRequestId) return;
+        var upd = await client
+          .from("thread_closure_requests")
+          .update({ status: "declined" })
+          .eq("id", pendingClosureRequestId);
+        if (upd.error) {
+          log(upd.error.message);
+          return;
+        }
+        pendingClosureRequestId = null;
+        var bar = $("own-closure-bar");
+        if (bar) bar.hidden = true;
+        log("Close request declined.");
+        await loadThreads();
+        if (activeThread) await refreshClosureBar(activeThread);
       });
     }
 

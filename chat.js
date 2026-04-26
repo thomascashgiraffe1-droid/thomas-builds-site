@@ -181,6 +181,7 @@
       .order("created_at", { ascending: true });
     if (res.error) return;
     await renderMessages(res.data || [], me.id);
+    await refreshClosureHint();
   }
 
   function subscribeRealtime() {
@@ -189,16 +190,65 @@
       client.removeChannel(realtimeChan);
       realtimeChan = null;
     }
+    var filt = "thread_id=eq." + threadId;
     realtimeChan = client
-      .channel("thread:" + threadId)
+      .channel("thread:" + threadId + ":v2")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages", filter: "thread_id=eq." + threadId },
+        { event: "INSERT", schema: "public", table: "messages", filter: filt },
         function () {
           loadMessages();
         }
       )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "thread_closure_requests", filter: filt },
+        function () {
+          refreshClosureHint();
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "thread_closure_requests", filter: filt },
+        function () {
+          refreshClosureHint();
+        }
+      )
       .subscribe();
+  }
+
+  async function refreshClosureHint() {
+    var hint = el("chat-closure-hint");
+    if (!hint || !threadId || !client) return;
+    var r = await client
+      .from("thread_closure_requests")
+      .select("id,status,created_at")
+      .eq("thread_id", threadId)
+      .order("created_at", { ascending: false });
+    if (r.error) {
+      hint.hidden = true;
+      return;
+    }
+    var rows = r.data || [];
+    var i;
+    for (i = 0; i < rows.length; i++) {
+      if (rows[i].status === "pending") {
+        hint.hidden = false;
+        hint.textContent =
+          "Thomas was asked to close this chat. They can approve or decline when they see it.";
+        hint.className = "chat-status chat-status--closure chat-status--warn";
+        return;
+      }
+    }
+    for (i = 0; i < rows.length; i++) {
+      if (rows[i].status === "declined") {
+        hint.hidden = false;
+        hint.textContent = "Thomas declined the close request. You can keep messaging.";
+        hint.className = "chat-status chat-status--closure";
+        return;
+      }
+    }
+    hint.hidden = true;
   }
 
   async function onSend(e) {
@@ -272,6 +322,7 @@
       status.className = "chat-status chat-status--ok";
     }
     await loadMessages();
+    await refreshClosureHint();
   }
 
   async function boot() {
@@ -329,11 +380,43 @@
     var form = el("chat-composer");
     if (form) form.addEventListener("submit", onSend);
 
+    var reqBtn = el("chat-request-close");
+    if (reqBtn) {
+      reqBtn.addEventListener("click", async function () {
+        if (!threadId || !client) return;
+        var status = el("chat-status");
+        var ins = await client.from("thread_closure_requests").insert({
+          thread_id: threadId,
+          status: "pending"
+        });
+        if (ins.error) {
+          var msg = ins.error.message || "";
+          if (status) {
+            if (msg.indexOf("duplicate") >= 0 || ins.error.code === "23505") {
+              status.textContent = "You already have a pending close request for this chat.";
+            } else {
+              status.textContent =
+                msg + " — Thomas must run ADD-CLOSURE-REQUESTS-SQL.txt in Supabase.";
+            }
+            status.className = "chat-status chat-status--error";
+          }
+          return;
+        }
+        if (status) {
+          status.textContent = "Request sent — Thomas can approve or decline when they see it.";
+          status.className = "chat-status chat-status--ok";
+        }
+        await refreshClosureHint();
+      });
+    }
+
     await loadMessages();
+    await refreshClosureHint();
     subscribeRealtime();
 
     client.auth.onAuthStateChange(function () {
       loadMessages();
+      refreshClosureHint();
     });
   }
 

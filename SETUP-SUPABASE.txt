@@ -130,6 +130,14 @@ Magic links must return to owner.html if you requested the link from that page.
 
 E) Redeploy / refresh the static site after editing site-config.js on GitHub.
 
+F) Delete conversations and close requests
+Run ADD-DELETE-CHAT-SQL.txt once in SQL Editor (new tab) so you can delete threads from owner.html
+and storage cleanup works as intended.
+
+Recommended: also run ADD-CLOSURE-REQUESTS-SQL.txt (same editor). Visitors then use “Request to close chat”
+on the public site; you approve or decline on owner.html. Part 1 of that file removes visitor self-delete
+if you already added it via ADD-DELETE-CHAT-SQL.txt.
+
 Notes
 - Visitors stay anonymous; each browser gets one Supabase anonymous user and one thread.
-- You answer from admin.html after signing in with your owner email (magic link or password, depending on what you enabled).
+- You answer from owner.html (or admin.html) after signing in with your owner email.

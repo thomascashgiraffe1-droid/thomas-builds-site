@@ -47,6 +47,13 @@
       <div class="owner-shell__col owner-shell__col--wide">
         <div class="owner-card">
           <h2 class="owner-card__title">Conversation</h2>
+          <div id="own-closure-bar" class="owner-closure-bar" hidden>
+            <p class="owner-closure-bar__text">This visitor asked to close and delete this chat.</p>
+            <div class="owner-card__row">
+              <button type="button" class="btn btn--primary" id="own-approve-close">Approve — delete chat</button>
+              <button type="button" class="btn btn--ghost" id="own-decline-close">Decline</button>
+            </div>
+          </div>
           <div id="own-stream" class="chat-stream owner-stream"></div>
           <form id="own-reply" class="owner-reply">
             <label class="field">
@@ -56,6 +63,7 @@
             <div class="owner-card__row">
               <button type="submit" class="btn btn--primary">Send reply</button>
               <button type="button" class="btn btn--ghost" id="own-notify-btn">Enable desktop alerts</button>
+              <button type="button" class="btn btn--danger" id="own-delete-thread">Delete thread</button>
             </div>
           </form>
         </div>

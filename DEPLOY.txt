@@ -31,6 +31,7 @@ After deploy
 
 Chat + owner inbox
 - Follow SETUP-SUPABASE.txt, then paste supabaseUrl + supabaseAnonKey into site-config.js on GitHub.
+- Run ADD-CLOSURE-REQUESTS-SQL.txt in Supabase (see SETUP section F) so visitors can “Request to close chat” and you approve/decline on owner.html.
 - Visitors use Messages on index.html only.
 - You read/reply on the PRIVATE page owner.html (not linked anywhere — bookmark https://YOUR-SITE.workers.dev/owner.html). Add that URL under Supabase Auth → Redirect URLs. Optional: rename owner.html to a secret filename and update links in owner-inbox.js (magic link redirect).
 

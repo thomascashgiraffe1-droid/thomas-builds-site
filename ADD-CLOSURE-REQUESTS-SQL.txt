@@ -1,0 +1,55 @@
+CLOSURE REQUESTS — visitor asks to close; only you (owner) can delete after approving
+
+Run once in Supabase SQL Editor (new tab).
+
+Part 1 — Remove visitor self-delete (if you ran ADD-DELETE-CHAT-SQL.txt before)
+-----BEGIN SQL-----
+drop policy if exists "threads visitor delete own" on public.threads;
+drop policy if exists "messages visitor delete own thread" on public.messages;
+-----END SQL-----
+
+Part 2 — Request table + RLS (owners keep thread/message delete from ADD-DELETE)
+-----BEGIN SQL-----
+create table if not exists public.thread_closure_requests (
+  id uuid primary key default gen_random_uuid(),
+  thread_id uuid not null references public.threads (id) on delete cascade,
+  status text not null default 'pending',
+  created_at timestamptz not null default now(),
+  constraint thread_closure_requests_status_chk check (status in ('pending', 'approved', 'declined'))
+);
+
+create unique index if not exists thread_closure_one_pending
+  on public.thread_closure_requests (thread_id)
+  where (status = 'pending');
+
+alter table public.thread_closure_requests enable row level security;
+
+drop policy if exists "closure_req_insert_visitor" on public.thread_closure_requests;
+create policy "closure_req_insert_visitor" on public.thread_closure_requests for insert
+with check (
+  status = 'pending'
+  and exists (
+    select 1 from public.threads t
+    where t.id = thread_id and t.visitor_id = auth.uid()
+  )
+);
+
+drop policy if exists "closure_req_select" on public.thread_closure_requests;
+create policy "closure_req_select" on public.thread_closure_requests for select
+using (
+  exists (select 1 from public.threads t where t.id = thread_id and t.visitor_id = auth.uid())
+  or exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_owner = true)
+);
+
+drop policy if exists "closure_req_update_owner" on public.thread_closure_requests;
+create policy "closure_req_update_owner" on public.thread_closure_requests for update
+using (
+  exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_owner = true)
+);
+
+alter publication supabase_realtime add table public.thread_closure_requests;
+-----END SQL-----
+
+If the last line errors with "already member of publication", ignore it.
+
+After success: redeploy site files, then visitors use "Request to close chat" and you use Approve/Decline on owner.html.

@@ -47,7 +47,10 @@
         <div id="adm-stream" class="chat-stream" style="max-height: 320px; margin-bottom: 0.75rem;"></div>
         <form id="adm-reply">
           <label class="field"><span class="field__label">Reply</span><textarea id="adm-body" class="input input--area" rows="3" required></textarea></label>
-          <button type="submit" class="btn btn--primary">Send reply</button>
+          <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+            <button type="submit" class="btn btn--primary">Send reply</button>
+            <button type="button" class="btn btn--danger" id="adm-delete-thread">Delete thread</button>
+          </div>
         </form>
       </div>
     </div>

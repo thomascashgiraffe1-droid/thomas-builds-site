@@ -104,6 +104,13 @@
       await loadThreadMessages(activeThread);
     });
 
+    var admDel = $("adm-delete-thread");
+    if (admDel) {
+      admDel.addEventListener("click", function () {
+        admDeleteActiveThread();
+      });
+    }
+
     client.auth.onAuthStateChange(function (_ev, session) {
       if (session) afterAuth();
     });
@@ -156,6 +163,53 @@
       host.appendChild(b);
     });
     if (!(res.data || []).length) host.textContent = "No threads yet.";
+  }
+
+  async function admPurgeThreadStorage(tid) {
+    var res = await client.from("messages").select("attachments").eq("thread_id", tid);
+    if (res.error) return;
+    var paths = [];
+    (res.data || []).forEach(function (row) {
+      var att = row.attachments;
+      if (typeof att === "string") {
+        try {
+          att = JSON.parse(att);
+        } catch (e) {
+          att = [];
+        }
+      }
+      if (!att || !att.length) return;
+      for (var i = 0; i < att.length; i++) {
+        if (att[i] && att[i].path) paths.push(att[i].path);
+      }
+    });
+    if (paths.length) {
+      await client.storage.from("chat-media").remove(paths);
+    }
+  }
+
+  async function admDeleteActiveThread() {
+    if (!activeThread || !client) return;
+    if (!confirm("Delete this whole conversation for you and the visitor? This cannot be undone.")) return;
+    log("Deleting…");
+    var tid = activeThread;
+    await admPurgeThreadStorage(tid);
+    var del = await client.from("threads").delete().eq("id", tid);
+    if (del.error) {
+      log(del.error.message + " — Run ADD-DELETE-CHAT-SQL.txt in Supabase.");
+      return;
+    }
+    activeThread = null;
+    var stream = $("adm-stream");
+    if (stream) {
+      stream.innerHTML = "";
+      var p = document.createElement("p");
+      p.className = "chat-empty-hint";
+      p.textContent = "Thread deleted.";
+      stream.appendChild(p);
+    }
+    log("Thread deleted.");
+    await loadThreads();
   }
 
   function formatTime(iso) {

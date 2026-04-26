@@ -204,6 +204,25 @@ body.device-desktop {
   color: var(--accent);
 }
 
+.btn--danger {
+  border-color: rgba(255, 120, 140, 0.55);
+  color: #ffb4c0;
+  background: transparent;
+}
+
+.btn--danger:hover {
+  border-color: #ff8a9a;
+  color: #ffe0e5;
+  background: rgba(255, 80, 100, 0.12);
+}
+
+.chat-composer__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .btn--small {
   padding: 0.4rem 0.85rem;
   font-size: 0.8rem;
@@ -582,6 +601,26 @@ body.device-desktop .build-grid {
 
 .chat-status--error {
   color: #ffb4b4;
+}
+
+.chat-status--closure {
+  margin-top: 0.35rem;
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+.owner-closure-bar {
+  margin-bottom: 0.85rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(232, 145, 192, 0.45);
+  background: rgba(232, 145, 192, 0.08);
+}
+
+.owner-closure-bar__text {
+  margin: 0 0 0.65rem;
+  font-size: 0.88rem;
+  color: var(--text);
 }
 
 .chat-stream {

@@ -70,6 +70,7 @@
 
       <div class="inbox-chat">
         <p class="chat-status" id="chat-status">Loading chat…</p>
+        <p class="chat-status chat-status--closure" id="chat-closure-hint" hidden></p>
         <div class="chat-stream" id="chat-stream" role="log" aria-live="polite" aria-relevant="additions"></div>
         <form class="chat-composer" id="chat-composer">
           <label class="field">
@@ -85,7 +86,10 @@
             <input type="file" id="chat-files" class="file-input" multiple accept="image/*,video/*" />
           </label>
           <ul class="file-preview" id="chat-file-preview" hidden></ul>
-          <button type="submit" class="btn btn--primary">Send</button>
+          <div class="chat-composer__actions">
+            <button type="submit" class="btn btn--primary">Send</button>
+            <button type="button" class="btn btn--ghost" id="chat-request-close">Request to close chat</button>
+          </div>
         </form>
       </div>
     </section>
