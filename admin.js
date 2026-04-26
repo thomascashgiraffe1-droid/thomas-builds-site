@@ -61,7 +61,7 @@
         log("Enter your email.");
         return;
       }
-      var redir = window.location.origin + "/";
+      var redir = window.location.origin + "/admin.html";
       var res = await client.auth.signInWithOtp({
         email: email,
         options: { emailRedirectTo: redir }

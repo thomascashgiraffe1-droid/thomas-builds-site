@@ -119,11 +119,14 @@ C) Make yourself the "owner" (so admin.html can see every thread)
    select id, true from auth.users where email = 'YOUR_EMAIL_HERE'
    on conflict (id) do update set is_owner = excluded.is_owner;
 
-D) Auth URLs for owner login (main site Inbox + optional admin.html)
+D) Auth URLs for owner login (private owner page)
 Authentication → URL configuration
-Site URL: https://YOUR-SITE.workers.dev/ (or your custom domain root)
-Redirect URLs: add the same root URL, and if you still use admin.html add https://YOUR-SITE.workers.dev/admin.html
-Magic links return to Site URL with a hash — then scroll to “Inbox (Thomas only)” on the homepage.
+Site URL: https://YOUR-SITE.workers.dev/ (your public homepage)
+Redirect URLs: add all of these (replace with your real host):
+  https://YOUR-SITE.workers.dev/
+  https://YOUR-SITE.workers.dev/owner.html   ← your private inbox (bookmark this; it is NOT linked on the public site)
+  https://YOUR-SITE.workers.dev/admin.html   ← optional old admin page
+Magic links must return to owner.html if you requested the link from that page.
 
 E) Redeploy / refresh the static site after editing site-config.js on GitHub.
 

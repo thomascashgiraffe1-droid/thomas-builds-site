@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Thomas — private inbox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="owner-page">
+  <header class="site-header">
+    <div class="site-header__inner">
+      <span class="logo">Thomas — inbox</span>
+      <a href="index.html" class="btn btn--small btn--ghost">← Public site</a>
+    </div>
+  </header>
+
+  <main class="section owner-inbox" style="padding-top: 1.5rem;">
+    <div class="section__head">
+      <h1 class="section__title" style="margin-bottom: 0.35rem;">Private inbox</h1>
+      <p class="section__lead">This page is not linked on the public site — bookmark it. Sign in to read and reply to visitor messages.</p>
+    </div>
+
+    <div id="own-login" class="owner-card">
+      <h2 class="owner-card__title">Sign in</h2>
+      <p class="owner-card__hint">Owner account with <code>profiles.is_owner = true</code> in Supabase.</p>
+      <label class="field"><span class="field__label">Email</span><input type="email" id="own-email" class="input" autocomplete="username" /></label>
+      <label class="field"><span class="field__label">Password</span><input type="password" id="own-pass" class="input" autocomplete="current-password" /></label>
+      <div class="owner-card__row">
+        <button type="button" class="btn btn--primary" id="own-signin-pass">Sign in</button>
+        <button type="button" class="btn btn--ghost" id="own-signin-otp">Email magic link</button>
+      </div>
+      <p class="owner-log" id="own-log"></p>
+    </div>
+
+    <div id="own-app" class="owner-shell" hidden>
+      <div class="owner-shell__col">
+        <div class="owner-card">
+          <h2 class="owner-card__title">Threads</h2>
+          <div id="own-thread-list" class="owner-thread-list"></div>
+          <button type="button" class="btn btn--ghost owner-signout" id="own-signout">Sign out</button>
+        </div>
+      </div>
+      <div class="owner-shell__col owner-shell__col--wide">
+        <div class="owner-card">
+          <h2 class="owner-card__title">Conversation</h2>
+          <div id="own-stream" class="chat-stream owner-stream"></div>
+          <form id="own-reply" class="owner-reply">
+            <label class="field">
+              <span class="field__label">Reply to visitor</span>
+              <textarea id="own-body" class="input input--area" rows="3" required placeholder="Type your reply…"></textarea>
+            </label>
+            <div class="owner-card__row">
+              <button type="submit" class="btn btn--primary">Send reply</button>
+              <button type="button" class="btn btn--ghost" id="own-notify-btn">Enable desktop alerts</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.min.js"></script>
+  <script src="site-config.js"></script>
+  <script src="owner-inbox.js"></script>
+</body>
+</html>

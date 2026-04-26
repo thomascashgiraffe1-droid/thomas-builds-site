@@ -193,13 +193,6 @@
     log("");
     await loadThreads();
     subscribeGlobal();
-    try {
-      if (sessionStorage.getItem("thomas_owner_magic")) {
-        sessionStorage.removeItem("thomas_owner_magic");
-        var sec = document.getElementById("owner-inbox");
-        if (sec) sec.scrollIntoView({ behavior: "smooth" });
-      }
-    } catch (e) {}
   }
 
   async function boot() {
@@ -245,7 +238,7 @@
           log("Enter your email.");
           return;
         }
-        var redir = window.location.origin + "/";
+        var redir = window.location.origin + "/owner.html";
         var res = await client.auth.signInWithOtp({
           email: email,
           options: { emailRedirectTo: redir }
@@ -254,10 +247,7 @@
           log(res.error.message);
           return;
         }
-        try {
-          sessionStorage.setItem("thomas_owner_magic", "1");
-        } catch (e) {}
-        log("Check your email for the magic link, then open it on this computer.");
+        log("Check your email — the link opens your private owner.html page.");
       });
     }
 

@@ -31,7 +31,8 @@ After deploy
 
 Chat + owner inbox
 - Follow SETUP-SUPABASE.txt, then paste supabaseUrl + supabaseAnonKey into site-config.js on GitHub.
-- Visitors use the Messages section on index.html. You answer from /admin.html after signing in as the owner account.
+- Visitors use Messages on index.html only.
+- You read/reply on the PRIVATE page owner.html (not linked anywhere — bookmark https://YOUR-SITE.workers.dev/owner.html). Add that URL under Supabase Auth → Redirect URLs. Optional: rename owner.html to a secret filename and update links in owner-inbox.js (magic link redirect).
 
 Hero video
 - Default is your Discord MP4 in site-config.js (heroVideoUrl). Set to "" to disable the background clip.
