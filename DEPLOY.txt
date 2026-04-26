@@ -1,0 +1,33 @@
+THOMAS BUILDS SITE — PUT IT ONLINE (slow steps)
+
+Before deploy
+1) Edit site-config.js — set discordInvite to your Discord server invite (https://discord.gg/...) and add other social URLs.
+2) Edit builds.json — paste video URLs (right-click video in Discord → Copy Link) or image links for thumbnails.
+
+Part A — New empty repo on GitHub
+1) Log into github.com
+2) Click the green “New” or “+” → New repository
+3) Name it e.g. thomas-builds-site
+4) Keep it Public (simplest free hosting)
+5) Do NOT add README / .gitignore / license (we already have files locally)
+6) Create repository
+
+Part B — Upload this folder
+Option 1 — Website (easiest): on the new repo page, use “uploading an existing file”, drag everything inside the thomas-builds-site folder (index.html, styles.css, app.js, builds.json, site-config.js), commit.
+
+Option 2 — Git on PC: if you use GitHub Desktop, add this folder as a repository and publish.
+
+Part C — Cloudflare Pages
+1) Go to dash.cloudflare.com → Workers & Pages → Pages → Create a project
+2) Connect to Git → GitHub → authorize if asked
+3) Pick the repo thomas-builds-site
+4) Build settings: Framework preset “None”, Build command empty, Build output directory: /
+   (If Cloudflare asks for output dir only, use / or leave default for static root)
+5) Save and Deploy — wait for green check
+6) You get a random *.pages.dev URL — that is your live site
+
+After deploy
+- Share the pages.dev link. Later you can add a custom domain in the Pages project settings.
+
+Chat note
+- The message form copies text and opens Discord. Full private upload chat needs Supabase (later). Previews for files still show on the page before send.

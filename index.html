@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thomas Builds</title>
+  <meta name="description" content="Adopt Me builds by Thomas — Cutecore, Dark, Nature & Cozy, and more." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,600;0,6..12,700;1,6..12,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="device-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="device-modal-title" hidden>
+    <div class="modal__panel">
+      <h2 id="device-modal-title" class="modal__title">How are you viewing?</h2>
+      <p class="modal__text">This helps layout look right. You can change it anytime in the footer.</p>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--ghost" data-device="mobile">Mobile</button>
+        <button type="button" class="btn btn--ghost" data-device="tablet">Tablet</button>
+        <button type="button" class="btn btn--primary" data-device="desktop">Desktop</button>
+      </div>
+      <button type="button" class="modal__skip link" id="device-skip">Skip</button>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a href="#" class="logo" id="logo-home">Thomas Builds</a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="#builds">Builds</a>
+        <a href="#social">Social</a>
+        <a href="#message">Message</a>
+      </nav>
+      <button type="button" class="btn btn--small btn--primary" id="open-chat" aria-expanded="false">Chat</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-label="Introduction">
+      <div class="hero__glow"></div>
+      <div class="hero__content">
+        <p class="hero__eyebrow">Adopt Me · showcase</p>
+        <h1 class="hero__title">Soft builds, clear style</h1>
+        <p class="hero__sub">Pick a category tab and explore tours. New drops land in Discord first.</p>
+        <a class="btn btn--primary hero__cta" href="#builds">Browse builds</a>
+      </div>
+    </section>
+
+    <section id="builds" class="section builds">
+      <div class="section__head">
+        <h2 class="section__title">Builds</h2>
+        <p class="section__lead">Switch tabs to filter. Cards open your video link when you add one.</p>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Build categories"></div>
+      <div class="build-grid" id="build-grid"></div>
+      <p class="empty-hint" id="empty-hint" hidden>No builds in this category yet — add rows in <code>builds.json</code>.</p>
+    </section>
+
+    <section id="social" class="section social">
+      <h2 class="section__title">Follow</h2>
+      <p class="section__lead">Links are set in <code>site-config.js</code> (fill in your real URLs).</p>
+      <ul class="social-list" id="social-list"></ul>
+    </section>
+
+    <section id="message" class="section message-section">
+      <h2 class="section__title">Message Thomas</h2>
+      <p class="section__lead">Type a note, add images or videos from your device, use your emoji keyboard. Sending uses Discord until a backend is connected.</p>
+      <form class="message-form" id="message-form">
+        <label class="field">
+          <span class="field__label">Your name (optional)</span>
+          <input type="text" name="name" autocomplete="nickname" class="input" placeholder="e.g. Alex" />
+        </label>
+        <label class="field">
+          <span class="field__label">Message</span>
+          <textarea name="body" class="input input--area" rows="4" required placeholder="Hi Thomas, I love…"></textarea>
+        </label>
+        <label class="field">
+          <span class="field__label">Images & videos</span>
+          <input type="file" name="files" id="message-files" class="file-input" multiple accept="image/*,video/*" />
+        </label>
+        <ul class="file-preview" id="file-preview" hidden></ul>
+        <div class="message-form__actions">
+          <button type="submit" class="btn btn--primary">Open in Discord</button>
+          <p class="form-note" id="form-note">This packages your text into a Discord-friendly draft. Attachments: Discord will ask you to add them after you paste, or send them in a follow-up message.</p>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <aside class="chat-drawer" id="chat-drawer" hidden aria-hidden="true">
+    <div class="chat-drawer__head">
+      <span class="chat-drawer__title">Quick message</span>
+      <button type="button" class="icon-btn" id="close-chat" aria-label="Close chat panel">×</button>
+    </div>
+    <p class="chat-drawer__hint">Same as the form below — use Discord for now for real replies with files.</p>
+    <a class="btn btn--primary btn--block" id="drawer-discord" href="#" target="_blank" rel="noopener">Open Discord</a>
+  </aside>
+  <div class="drawer-scrim" id="drawer-scrim" hidden></div>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <span class="footer-brand">Thomas Builds</span>
+      <button type="button" class="link" id="footer-device">Display: <span id="device-label">Auto</span></button>
+    </div>
+  </footer>
+
+  <script src="site-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "cutecore-1",
+    "category": "cutecore",
+    "title": "Cutecore #1",
+    "houseType": "Tiny Home",
+    "cost": "$24,416",
+    "featured": true,
+    "isNew": false,
+    "videoUrl": "",
+    "thumbnailUrl": "",
+    "tags": ["pastel", "night"]
+  },
+  {
+    "id": "cutecore-2",
+    "category": "cutecore",
+    "title": "Cutecore #2",
+    "houseType": "Tiny Home",
+    "cost": "$18,018",
+    "featured": false,
+    "isNew": true,
+    "videoUrl": "",
+    "thumbnailUrl": "",
+    "tags": ["pink", "plush"]
+  },
+  {
+    "id": "dark-5",
+    "category": "dark",
+    "title": "Dark #5",
+    "houseType": "Tiny Home",
+    "cost": "$9,749",
+    "featured": false,
+    "isNew": false,
+    "videoUrl": "",
+    "thumbnailUrl": "",
+    "tags": ["moody"]
+  },
+  {
+    "id": "dark-6",
+    "category": "dark",
+    "title": "Dark #6",
+    "houseType": "Tiny Home",
+    "cost": "$67,776",
+    "featured": true,
+    "isNew": false,
+    "videoUrl": "",
+    "thumbnailUrl": "",
+    "tags": ["luxury dark"]
+  }
+]
