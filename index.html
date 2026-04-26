@@ -30,19 +30,20 @@
       <nav class="site-nav" aria-label="Main">
         <a href="#builds">Builds</a>
         <a href="#social">Social</a>
-        <a href="#message">Message</a>
+        <a href="#message">Messages</a>
       </nav>
-      <button type="button" class="btn btn--small btn--primary" id="open-chat" aria-expanded="false">Chat</button>
+      <button type="button" class="btn btn--small btn--primary" id="open-chat">Chat</button>
     </div>
   </header>
 
   <main>
     <section class="hero" aria-label="Introduction">
+      <div class="hero__video-host" id="hero-video-host" aria-hidden="true"></div>
       <div class="hero__glow"></div>
       <div class="hero__content">
         <p class="hero__eyebrow">Adopt Me · showcase</p>
         <h1 class="hero__title">Soft builds, clear style</h1>
-        <p class="hero__sub">Pick a category tab and explore tours. New drops land in Discord first.</p>
+        <p class="hero__sub">Pick a category tab and explore tours. Message me on this site — social links are extra if you want more of my content.</p>
         <a class="btn btn--primary hero__cta" href="#builds">Browse builds</a>
       </div>
     </section>
@@ -50,7 +51,7 @@
     <section id="builds" class="section builds">
       <div class="section__head">
         <h2 class="section__title">Builds</h2>
-        <p class="section__lead">Switch tabs to filter. Cards open your video link when you add one.</p>
+        <p class="section__lead">Switch tabs to filter. Add <code>videoUrl</code> or <code>thumbnailUrl</code> in <code>builds.json</code> for previews.</p>
       </div>
       <div class="tabs" role="tablist" aria-label="Build categories"></div>
       <div class="build-grid" id="build-grid"></div>
@@ -58,45 +59,37 @@
     </section>
 
     <section id="social" class="section social">
-      <h2 class="section__title">Follow</h2>
-      <p class="section__lead">Links are set in <code>site-config.js</code> (fill in your real URLs).</p>
+      <h2 class="section__title">Social</h2>
+      <p class="section__lead">Quick buttons to your profiles (optional — fill URLs in <code>site-config.js</code>).</p>
       <ul class="social-list" id="social-list"></ul>
     </section>
 
     <section id="message" class="section message-section">
       <h2 class="section__title">Message Thomas</h2>
-      <p class="section__lead">Type a note, add images or videos from your device, use your emoji keyboard. Sending uses Discord until a backend is connected.</p>
-      <form class="message-form" id="message-form">
-        <label class="field">
-          <span class="field__label">Your name (optional)</span>
-          <input type="text" name="name" autocomplete="nickname" class="input" placeholder="e.g. Alex" />
-        </label>
-        <label class="field">
-          <span class="field__label">Message</span>
-          <textarea name="body" class="input input--area" rows="4" required placeholder="Hi Thomas, I love…"></textarea>
-        </label>
-        <label class="field">
-          <span class="field__label">Images & videos</span>
-          <input type="file" name="files" id="message-files" class="file-input" multiple accept="image/*,video/*" />
-        </label>
-        <ul class="file-preview" id="file-preview" hidden></ul>
-        <div class="message-form__actions">
-          <button type="submit" class="btn btn--primary">Open in Discord</button>
-          <p class="form-note" id="form-note">This packages your text into a Discord-friendly draft. Attachments: Discord will ask you to add them after you paste, or send them in a follow-up message.</p>
-        </div>
-      </form>
+      <p class="section__lead">Private chat on this page. Emojis work from your normal keyboard. You can attach images and videos. Thomas reads and replies here (and uses the owner inbox link in <code>SETUP-SUPABASE.txt</code>).</p>
+
+      <div class="inbox-chat">
+        <p class="chat-status" id="chat-status">Loading chat…</p>
+        <div class="chat-stream" id="chat-stream" role="log" aria-live="polite" aria-relevant="additions"></div>
+        <form class="chat-composer" id="chat-composer">
+          <label class="field">
+            <span class="field__label">Display name (optional)</span>
+            <input type="text" id="chat-nick" class="input" maxlength="40" placeholder="What should I call you?" autocomplete="nickname" />
+          </label>
+          <label class="field">
+            <span class="field__label">Message</span>
+            <textarea id="chat-body" class="input input--area" rows="3" placeholder="Hi Thomas…"></textarea>
+          </label>
+          <label class="field">
+            <span class="field__label">Images &amp; videos</span>
+            <input type="file" id="chat-files" class="file-input" multiple accept="image/*,video/*" />
+          </label>
+          <ul class="file-preview" id="chat-file-preview" hidden></ul>
+          <button type="submit" class="btn btn--primary">Send</button>
+        </form>
+      </div>
     </section>
   </main>
-
-  <aside class="chat-drawer" id="chat-drawer" hidden aria-hidden="true">
-    <div class="chat-drawer__head">
-      <span class="chat-drawer__title">Quick message</span>
-      <button type="button" class="icon-btn" id="close-chat" aria-label="Close chat panel">×</button>
-    </div>
-    <p class="chat-drawer__hint">Same as the form below — use Discord for now for real replies with files.</p>
-    <a class="btn btn--primary btn--block" id="drawer-discord" href="#" target="_blank" rel="noopener">Open Discord</a>
-  </aside>
-  <div class="drawer-scrim" id="drawer-scrim" hidden></div>
 
   <footer class="site-footer">
     <div class="site-footer__inner">
@@ -105,7 +98,9 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.min.js"></script>
   <script src="site-config.js"></script>
   <script src="app.js"></script>
+  <script src="chat.js"></script>
 </body>
 </html>

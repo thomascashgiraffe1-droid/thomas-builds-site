@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inbox — Thomas Builds</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .admin-wrap { max-width: 960px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+    .admin-grid { display: grid; gap: 1rem; }
+    @media (min-width: 800px) { .admin-grid { grid-template-columns: 1fr 1.2fr; } }
+    .admin-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; min-height: 200px; }
+    .admin-panel h2 { margin: 0 0 0.75rem; font-family: var(--font-display); font-size: 1.1rem; }
+    .thread-row { width: 100%; text-align: left; padding: 0.55rem 0.65rem; margin-bottom: 0.35rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-deep); color: var(--text); font-family: var(--font-body); cursor: pointer; font-size: 0.85rem; }
+    .thread-row:hover { border-color: var(--accent); }
+    .thread-row.is-active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-soft); }
+    .admin-log { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-wrap">
+    <h1 class="hero__title" style="font-size: 1.5rem; margin-bottom: 0.5rem;">Owner inbox</h1>
+    <p class="section__lead" style="margin-bottom: 1rem;">Sign in with the email you marked as owner in Supabase. Pick a visitor thread and reply — messages show on the main site for that visitor.</p>
+
+    <div id="admin-login" class="admin-panel">
+      <h2>Sign in</h2>
+      <label class="field"><span class="field__label">Email</span><input type="email" id="adm-email" class="input" autocomplete="username" /></label>
+      <label class="field"><span class="field__label">Password (if you set one in Supabase)</span><input type="password" id="adm-pass" class="input" autocomplete="current-password" /></label>
+      <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem;">
+        <button type="button" class="btn btn--primary" id="adm-signin-pass">Sign in with password</button>
+        <button type="button" class="btn btn--ghost" id="adm-signin-otp">Email me a magic link</button>
+      </div>
+      <p class="admin-log" id="adm-log"></p>
+    </div>
+
+    <div id="admin-app" class="admin-grid" hidden>
+      <div class="admin-panel">
+        <h2>Threads</h2>
+        <div id="adm-thread-list"></div>
+        <button type="button" class="btn btn--ghost" id="adm-signout" style="margin-top:0.75rem;">Sign out</button>
+      </div>
+      <div class="admin-panel">
+        <h2>Conversation</h2>
+        <div id="adm-stream" class="chat-stream" style="max-height: 320px; margin-bottom: 0.75rem;"></div>
+        <form id="adm-reply">
+          <label class="field"><span class="field__label">Reply</span><textarea id="adm-body" class="input input--area" rows="3" required></textarea></label>
+          <button type="submit" class="btn btn--primary">Send reply</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.min.js"></script>
+  <script src="site-config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

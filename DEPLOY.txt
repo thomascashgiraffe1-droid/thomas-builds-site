@@ -29,5 +29,9 @@ Part C — Cloudflare Pages
 After deploy
 - Share the pages.dev link. Later you can add a custom domain in the Pages project settings.
 
-Chat note
-- The message form copies text and opens Discord. Full private upload chat needs Supabase (later). Previews for files still show on the page before send.
+Chat + owner inbox
+- Follow SETUP-SUPABASE.txt, then paste supabaseUrl + supabaseAnonKey into site-config.js on GitHub.
+- Visitors use the Messages section on index.html. You answer from /admin.html after signing in as the owner account.
+
+Hero video
+- Default is your Discord MP4 in site-config.js (heroVideoUrl). Set to "" to disable the background clip.

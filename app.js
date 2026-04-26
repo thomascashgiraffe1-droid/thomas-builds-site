@@ -80,6 +80,15 @@
     }
   }
 
+  function goMessages() {
+    var msg = document.getElementById("message");
+    if (msg) msg.scrollIntoView({ behavior: "smooth" });
+    setTimeout(function () {
+      var ta = document.getElementById("chat-body");
+      if (ta) ta.focus();
+    }, 450);
+  }
+
   function initHeader() {
     var logo = $("#logo-home");
     if (logo) {
@@ -89,42 +98,49 @@
       });
     }
     var open = $("#open-chat");
-    var close = $("#close-chat");
-    var drawer = $("#chat-drawer");
-    var scrim = $("#drawer-scrim");
-    var dd = $("#drawer-discord");
-    if (dd && cfg.discordInvite) dd.href = cfg.discordInvite;
-    function setOpen(on) {
-      if (!drawer || !scrim) return;
-      drawer.hidden = !on;
-      scrim.hidden = !on;
-      drawer.setAttribute("aria-hidden", on ? "false" : "true");
-      if (open) open.setAttribute("aria-expanded", on ? "true" : "false");
+    if (open) {
+      open.addEventListener("click", function () {
+        goMessages();
+      });
     }
-    if (open) open.addEventListener("click", function () { setOpen(true); });
-    if (close) close.addEventListener("click", function () { setOpen(false); });
-    if (scrim) scrim.addEventListener("click", function () { setOpen(false); });
   }
 
   function renderSocial() {
     var ul = $("#social-list");
     if (!ul) return;
     var items = [
-      { key: "discord", label: "Discord", url: cfg.discordInvite },
-      { key: "tiktok", label: "TikTok", url: cfg.tiktokUrl },
-      { key: "youtube", label: "YouTube", url: cfg.youtubeUrl },
-      { key: "roblox", label: "Roblox", url: cfg.robloxUrl },
-      { key: "instagram", label: "Instagram", url: cfg.instagramUrl }
+      { label: "Discord", url: cfg.discordUrl, icon: "✦" },
+      { label: "TikTok", url: cfg.tiktokUrl, icon: "♪" },
+      { label: "YouTube", url: cfg.youtubeUrl, icon: "▶" },
+      { label: "Roblox", url: cfg.robloxUrl, icon: "◇" },
+      { label: "Instagram", url: cfg.instagramUrl, icon: "◎" },
+      { label: "X", url: cfg.twitterUrl, icon: "𝕏" }
     ];
+    if (cfg.contactEmail) {
+      items.push({
+        label: "Email",
+        url: "mailto:" + String(cfg.contactEmail).replace(/^mailto:/i, ""),
+        icon: "✉"
+      });
+    }
     ul.innerHTML = "";
     items.forEach(function (item) {
       var li = document.createElement("li");
       if (!item.url) li.className = "muted";
       var a = document.createElement("a");
       a.href = item.url || "#social";
-      a.textContent = item.label;
+      a.className = "social-btn";
       if (item.url) a.target = "_blank";
       a.rel = "noopener noreferrer";
+      var ic = document.createElement("span");
+      ic.className = "social-btn__ic";
+      ic.setAttribute("aria-hidden", "true");
+      ic.textContent = item.icon;
+      var tx = document.createElement("span");
+      tx.className = "social-btn__tx";
+      tx.textContent = item.label;
+      a.appendChild(ic);
+      a.appendChild(tx);
       li.appendChild(a);
       ul.appendChild(li);
     });
@@ -258,70 +274,25 @@
       });
   }
 
-  function initMessageForm() {
-    var form = $("#message-form");
-    var filesInput = $("#message-files");
-    var preview = $("#file-preview");
-    if (!form) return;
-
-    function clearPreview() {
-      if (!preview) return;
-      preview.innerHTML = "";
-      preview.hidden = true;
-    }
-
-    if (filesInput && preview) {
-      filesInput.addEventListener("change", function () {
-        clearPreview();
-        var files = filesInput.files;
-        if (!files || !files.length) return;
-        preview.hidden = false;
-        for (var i = 0; i < files.length; i++) {
-          (function (file) {
-            var li = document.createElement("li");
-            if (file.type.indexOf("image/") === 0) {
-              var img = document.createElement("img");
-              img.alt = "";
-              img.src = URL.createObjectURL(file);
-              li.appendChild(img);
-            } else if (file.type.indexOf("video/") === 0) {
-              var vid = document.createElement("video");
-              vid.muted = true;
-              vid.src = URL.createObjectURL(file);
-              vid.playsInline = true;
-              li.appendChild(vid);
-            } else {
-              li.textContent = file.name;
-            }
-            preview.appendChild(li);
-          })(files[i]);
-        }
-      });
-    }
-
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var fd = new FormData(form);
-      var name = (fd.get("name") || "").toString().trim();
-      var body = (fd.get("body") || "").toString().trim();
-      var draft =
-        (name ? "From: " + name + "\n\n" : "") +
-        body +
-        "\n\n— Sent from Thomas Builds site";
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(draft).catch(function () {});
-      }
-      var note = $("#form-note");
-      if (note) {
-        note.textContent =
-          "Draft copied to clipboard. Discord opens next — paste there. For images/videos, attach them in Discord after you paste the text (browser security blocks auto-upload).";
-      }
-      if (cfg.discordInvite) {
-        window.open(cfg.discordInvite, "_blank", "noopener,noreferrer");
-      } else {
-        alert("Set discordInvite in site-config.js to your server or user link.");
-      }
-    });
+  function applyHeroVideo() {
+    var host = document.getElementById("hero-video-host");
+    if (!host) return;
+    host.innerHTML = "";
+    if (!cfg.heroVideoUrl) return;
+    var v = document.createElement("video");
+    v.className = "hero__bg-video";
+    v.setAttribute("autoplay", "");
+    v.setAttribute("muted", "");
+    v.setAttribute("loop", "");
+    v.setAttribute("playsinline", "");
+    v.setAttribute("preload", "metadata");
+    v.setAttribute("aria-hidden", "true");
+    var s = document.createElement("source");
+    s.src = cfg.heroVideoUrl;
+    s.type = "video/mp4";
+    v.appendChild(s);
+    host.appendChild(v);
+    v.play().catch(function () {});
   }
 
   function applyBranding() {
@@ -337,7 +308,7 @@
   initDevicePrompt();
   initHeader();
   renderSocial();
-  initMessageForm();
   applyBranding();
+  applyHeroVideo();
   loadBuilds();
 })();
