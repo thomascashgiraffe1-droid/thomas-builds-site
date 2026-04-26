@@ -3,6 +3,7 @@
   var client = null;
   var threadId = null;
   var realtimeChan = null;
+  var THREAD_ID_STORAGE = "thomas_builds_visitor_thread_id";
 
   function el(id) {
     return document.getElementById(id);
@@ -36,6 +37,26 @@
     var again = await client.from("threads").select("id").eq("visitor_id", uid).maybeSingle();
     if (again.data && again.data.id) return again.data.id;
     return null;
+  }
+
+  async function resolveThreadForVisitor(uid) {
+    var saved = null;
+    try {
+      saved = localStorage.getItem(THREAD_ID_STORAGE);
+    } catch (e) {}
+    if (saved) {
+      var verify = await client
+        .from("threads")
+        .select("id")
+        .eq("id", saved)
+        .eq("visitor_id", uid)
+        .maybeSingle();
+      if (!verify.error && verify.data && verify.data.id) return verify.data.id;
+      try {
+        localStorage.removeItem(THREAD_ID_STORAGE);
+      } catch (e2) {}
+    }
+    return ensureThread(uid);
   }
 
   function clearPreviews() {
@@ -170,6 +191,49 @@
     stream.scrollTop = stream.scrollHeight;
   }
 
+  async function onThreadDeletedByOwner() {
+    if (!client) return;
+    if (realtimeChan) {
+      client.removeChannel(realtimeChan);
+      realtimeChan = null;
+    }
+    try {
+      localStorage.removeItem(THREAD_ID_STORAGE);
+    } catch (e) {}
+    var me = (await client.auth.getUser()).data.user;
+    if (!me) return;
+    var tid = await ensureThread(me.id);
+    var status = el("chat-status");
+    if (!tid) {
+      threadId = null;
+      if (status) {
+        status.textContent = "Could not open a new chat. Refresh the page.";
+        status.className = "chat-status chat-status--error";
+      }
+      var stream = el("chat-stream");
+      if (stream) stream.innerHTML = "";
+      return;
+    }
+    threadId = tid;
+    try {
+      localStorage.setItem(THREAD_ID_STORAGE, tid);
+    } catch (e2) {}
+    if (status) {
+      status.textContent =
+        "This conversation was closed or removed. You are on a fresh chat now.";
+      status.className = "chat-status chat-status--ok";
+    }
+    var hint = el("chat-closure-hint");
+    if (hint) {
+      hint.hidden = true;
+      hint.textContent = "";
+      hint.className = "chat-status chat-status--closure";
+    }
+    await loadMessages();
+    await refreshClosureHint();
+    subscribeRealtime();
+  }
+
   async function loadMessages() {
     if (!client || !threadId) return;
     var me = (await client.auth.getUser()).data.user;
@@ -190,9 +254,10 @@
       client.removeChannel(realtimeChan);
       realtimeChan = null;
     }
-    var filt = "thread_id=eq." + threadId;
+    var subscribedTid = threadId;
+    var filt = "thread_id=eq." + subscribedTid;
     realtimeChan = client
-      .channel("thread:" + threadId + ":v2")
+      .channel("thread:" + subscribedTid + ":v3")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: filt },
@@ -212,6 +277,15 @@
         { event: "UPDATE", schema: "public", table: "thread_closure_requests", filter: filt },
         function () {
           refreshClosureHint();
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "threads" },
+        function (payload) {
+          var oldRow = payload.old;
+          if (!oldRow || oldRow.id !== subscribedTid) return;
+          onThreadDeletedByOwner();
         }
       )
       .subscribe();
@@ -349,16 +423,22 @@
     status.textContent = "Starting a private thread…";
     status.className = "chat-status";
 
-    var anon = await client.auth.signInAnonymously();
-    if (anon.error) {
-      status.textContent =
-        "Could not start chat: " + anon.error.message + " — In Supabase: Authentication → Providers → turn on Anonymous sign-ins.";
-      status.className = "chat-status chat-status--error";
-      return;
+    var sess = await client.auth.getSession();
+    var uid = null;
+    if (sess.data.session && sess.data.session.user) {
+      uid = sess.data.session.user.id;
+    } else {
+      var anon = await client.auth.signInAnonymously();
+      if (anon.error) {
+        status.textContent =
+          "Could not start chat: " + anon.error.message + " — In Supabase: Authentication → Providers → turn on Anonymous sign-ins.";
+        status.className = "chat-status chat-status--error";
+        return;
+      }
+      uid = anon.data.user.id;
     }
 
-    var uid = anon.data.user.id;
-    var tid = await ensureThread(uid);
+    var tid = await resolveThreadForVisitor(uid);
     if (!tid) {
       status.textContent = "Could not create a conversation. Check database policies in SETUP-SUPABASE.txt.";
       status.className = "chat-status chat-status--error";
@@ -366,6 +446,9 @@
     }
 
     threadId = tid;
+    try {
+      localStorage.setItem(THREAD_ID_STORAGE, tid);
+    } catch (x) {}
     status.textContent =
       "You are messaging Thomas inside this site. Use your normal emoji keyboard, and attach photos or short videos.";
     status.className = "chat-status chat-status--ok";

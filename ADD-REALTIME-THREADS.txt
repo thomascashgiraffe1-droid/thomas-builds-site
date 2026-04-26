@@ -1,0 +1,13 @@
+REALTIME ON public.threads — run once in Supabase SQL Editor
+
+Lets the visitor site hear when their thread row is deleted (owner deleted chat or
+approved close). Without this, their UI only updates after refresh.
+
+Replica identity helps DELETE payloads include the row id for clients.
+
+-----BEGIN SQL-----
+alter table public.threads replica identity full;
+alter publication supabase_realtime add table public.threads;
+-----END SQL-----
+
+If the line errors with "already member of publication", ignore it.

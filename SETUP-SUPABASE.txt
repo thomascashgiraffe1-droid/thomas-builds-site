@@ -104,6 +104,11 @@ alter publication supabase_realtime add table public.messages;
 
 If the last line errors with "already member of publication", ignore it (realtime is already on).
 
+Also run once (visitor chat clears when you delete their thread — see ADD-REALTIME-THREADS.txt):
+
+alter table public.threads replica identity full;
+alter publication supabase_realtime add table public.threads;
+
 Optional: turn off the landing background clip by setting heroVideoUrl to "" in site-config.js.
 
 C) Make yourself the "owner" (so admin.html can see every thread)

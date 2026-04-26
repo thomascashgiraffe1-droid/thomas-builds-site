@@ -634,6 +634,13 @@ body.device-desktop .build-grid {
   border: 1px solid var(--border);
 }
 
+@media (min-width: 860px) {
+  .chat-stream {
+    max-height: none;
+    overflow-y: visible;
+  }
+}
+
 .chat-empty-hint {
   margin: 0.5rem 0 0;
   padding: 0.75rem 0.5rem;
@@ -975,6 +982,13 @@ code {
 
 .owner-stream {
   max-height: min(48vh, 400px);
+}
+
+@media (min-width: 860px) {
+  .owner-stream {
+    max-height: none;
+    overflow-y: visible;
+  }
 }
 
 .owner-reply {
