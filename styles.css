@@ -595,6 +595,15 @@ body.device-desktop .build-grid {
   border: 1px solid var(--border);
 }
 
+.chat-empty-hint {
+  margin: 0.5rem 0 0;
+  padding: 0.75rem 0.5rem;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.45;
+}
+
 .chat-bubble-wrap {
   display: flex;
   flex-direction: column;
@@ -835,4 +844,109 @@ body.device-desktop .build-grid {
 code {
   font-size: 0.85em;
   color: var(--accent-2);
+}
+
+.site-nav__owner {
+  color: var(--accent) !important;
+}
+
+.owner-inbox {
+  padding-bottom: 4rem;
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+}
+
+.owner-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.15rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.owner-card__title {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+
+.owner-card__hint {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.owner-card__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.owner-log {
+  margin: 0.75rem 0 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  min-height: 1.25em;
+}
+
+.owner-shell {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 860px) {
+  .owner-shell {
+    grid-template-columns: minmax(200px, 280px) 1fr;
+    align-items: start;
+  }
+}
+
+.owner-thread-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.thread-row {
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.65rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.thread-row:hover {
+  border-color: rgba(232, 145, 192, 0.45);
+}
+
+.thread-row.is-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-soft);
+}
+
+.owner-stream {
+  max-height: min(48vh, 400px);
+}
+
+.owner-reply {
+  margin-top: 0.75rem;
+}
+
+.owner-signout {
+  margin-top: 0.75rem;
+  width: 100%;
+}
+
+.site-footer__inbox {
+  text-decoration: none;
 }

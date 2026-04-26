@@ -156,6 +156,14 @@
     var stream = el("chat-stream");
     if (!stream) return;
     stream.innerHTML = "";
+    if (!rows || !rows.length) {
+      var hint = document.createElement("p");
+      hint.className = "chat-empty-hint";
+      hint.textContent =
+        "No messages on this device yet — type below and tap Send. Each browser/device has its own thread.";
+      stream.appendChild(hint);
+      return;
+    }
     for (var i = 0; i < rows.length; i++) {
       stream.appendChild(await bubbleNode(rows[i], meId));
     }
@@ -279,7 +287,12 @@
     }
 
     client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false,
+        storageKey: "thomas_builds_visitor_auth"
+      }
     });
 
     status.textContent = "Starting a private thread…";

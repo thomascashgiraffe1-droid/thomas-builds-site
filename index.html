@@ -31,6 +31,7 @@
         <a href="#builds">Builds</a>
         <a href="#social">Social</a>
         <a href="#message">Messages</a>
+        <a href="#owner-inbox" class="site-nav__owner">Inbox</a>
       </nav>
       <button type="button" class="btn btn--small btn--primary" id="open-chat">Chat</button>
     </div>
@@ -66,7 +67,7 @@
 
     <section id="message" class="section message-section">
       <h2 class="section__title">Message Thomas</h2>
-      <p class="section__lead">Private chat on this page. Emojis work from your normal keyboard. You can attach images and videos. Thomas reads and replies here (and uses the owner inbox link in <code>SETUP-SUPABASE.txt</code>).</p>
+      <p class="section__lead">Private chat on this page. Emojis work from your normal keyboard. You can attach images and videos. Thomas reads everything in <strong>Inbox</strong> below after signing in.</p>
 
       <div class="inbox-chat">
         <p class="chat-status" id="chat-status">Loading chat…</p>
@@ -89,11 +90,57 @@
         </form>
       </div>
     </section>
+
+    <section id="owner-inbox" class="section owner-inbox" aria-labelledby="owner-inbox-title">
+      <div class="section__head">
+        <h2 id="owner-inbox-title" class="section__title">Inbox (Thomas only)</h2>
+        <p class="section__lead">Sign in on your main computer to see every visitor thread in one place. New messages show up live while you stay logged in. Visitors use <strong>Messages</strong> above — this block is for you.</p>
+      </div>
+
+      <div id="own-login" class="owner-card">
+        <h3 class="owner-card__title">Sign in</h3>
+        <p class="owner-card__hint">Use the same owner email you set in Supabase (<code>profiles.is_owner</code>).</p>
+        <label class="field"><span class="field__label">Email</span><input type="email" id="own-email" class="input" autocomplete="username" /></label>
+        <label class="field"><span class="field__label">Password</span><input type="password" id="own-pass" class="input" autocomplete="current-password" /></label>
+        <div class="owner-card__row">
+          <button type="button" class="btn btn--primary" id="own-signin-pass">Sign in</button>
+          <button type="button" class="btn btn--ghost" id="own-signin-otp">Email magic link</button>
+        </div>
+        <p class="owner-log" id="own-log"></p>
+      </div>
+
+      <div id="own-app" class="owner-shell" hidden>
+        <div class="owner-shell__col">
+          <div class="owner-card">
+            <h3 class="owner-card__title">Threads</h3>
+            <div id="own-thread-list" class="owner-thread-list"></div>
+            <button type="button" class="btn btn--ghost owner-signout" id="own-signout">Sign out</button>
+          </div>
+        </div>
+        <div class="owner-shell__col owner-shell__col--wide">
+          <div class="owner-card">
+            <h3 class="owner-card__title">Conversation</h3>
+            <div id="own-stream" class="chat-stream owner-stream"></div>
+            <form id="own-reply" class="owner-reply">
+              <label class="field">
+                <span class="field__label">Reply to visitor</span>
+                <textarea id="own-body" class="input input--area" rows="3" required placeholder="Type your reply…"></textarea>
+              </label>
+              <div class="owner-card__row">
+                <button type="submit" class="btn btn--primary">Send reply</button>
+                <button type="button" class="btn btn--ghost" id="own-notify-btn">Enable desktop alerts</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
     <div class="site-footer__inner">
       <span class="footer-brand">Thomas Builds</span>
+      <a href="#owner-inbox" class="link site-footer__inbox">Thomas inbox</a>
       <button type="button" class="link" id="footer-device">Display: <span id="device-label">Auto</span></button>
     </div>
   </footer>
@@ -101,6 +148,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.min.js"></script>
   <script src="site-config.js"></script>
   <script src="app.js"></script>
+  <script src="owner-inbox.js"></script>
   <script src="chat.js"></script>
 </body>
 </html>

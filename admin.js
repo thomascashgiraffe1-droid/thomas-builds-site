@@ -27,7 +27,12 @@
       return;
     }
     client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storageKey: "thomas_builds_owner_auth"
+      }
     });
 
     var sess = await client.auth.getSession();
@@ -56,7 +61,7 @@
         log("Enter your email.");
         return;
       }
-      var redir = window.location.origin + window.location.pathname;
+      var redir = window.location.origin + "/";
       var res = await client.auth.signInWithOtp({
         email: email,
         options: { emailRedirectTo: redir }
